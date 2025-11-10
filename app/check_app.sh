@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "--- Début de la vérification ---"
 
-if [ -f index.html ]; then
+if [ -f app/index.html ]; then
   echo "✅ Fichier index.html trouvé"
   echo "--- Vérification terminée avec succès ---"
   exit 0
