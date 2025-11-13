@@ -4,7 +4,7 @@ echo "--- Début de la vérification ---"
 if [ -f app/index.html ]; then
   echo "✅ Fichier index.html trouvé"
   echo "--- Vérification terminée avec succès ---"
-  exit 1
+  exit 0
 else
   echo "❌ Fichier index.html manquant"
   echo "--- Vérification échouée ---"
