@@ -1,0 +1,53 @@
+name: CI-CD Full Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  # ----------------------------
+  # Job 1 : BUILD AND TEST (CI)
+  # ----------------------------
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Dummy Test Step
+        run: echo "Tests OK - Aucun test réel dans ce projet"
+
+  # ----------------------------
+  # Job 2 : DEPLOY (CD)
+  # ----------------------------
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Create Ansible Inventory File
+        run: |
+          echo "[webserver]" > inventory.ini
+          echo "${{ secrets.SERVER_IP }} ansible_user=${{ secrets.SERVER_USER }} ansible_ssh_private_key_file=~/.ssh/id_rsa" >> inventory.ini
+          chmod 600 inventory.ini
+
+      - name: Install Ansible (via pip)
+        run: |
+          pip install ansible
+
+      - name: Run Ansible Playbook
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          ansible-playbook -i inventory.ini ansible/deploy.yml
