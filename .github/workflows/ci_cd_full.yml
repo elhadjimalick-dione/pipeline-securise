@@ -53,4 +53,3 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           ansible-playbook -i inventory.ini ansible/deploy.yml
-
