@@ -1,0 +1,48 @@
+---
+- name: Déployer l'application web
+  hosts: webserver
+  become: yes
+
+  vars:
+    app_dest: /var/www/html/tp-app
+
+  tasks:
+
+    - name: Installer Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Créer le répertoire de destination
+      file:
+        path: "{{ app_dest }}"
+        state: directory
+        owner: deployuser
+        group: deployuser
+        mode: '0755'
+
+    - name: Copier les fichiers de l'application
+      copy:
+        src: ../app/
+        dest: "{{ app_dest }}"
+        owner: deployuser
+        group: "deployuser"
+        mode: '0644'
+
+    - name: Déployer la configuration Nginx
+      template:
+        src: nginx_vhost.conf.j2
+        dest: /etc/nginx/sites-available/tp-app.conf
+
+    - name: Activer le site Nginx
+      file:
+        src: /etc/nginx/sites-available/tp-app.conf
+        dest: /etc/nginx/sites-enabled/tp-app.conf
+        state: link
+        force: yes
+
+    - name: Redémarrer Nginx
+      service:
+        name: nginx
+        state: restarted
